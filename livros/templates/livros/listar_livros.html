@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Livros</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/responsive.css' %}">
+
+    <style>
+        body.dashboard {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f4f7fc, #e1ebf5);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #005a79;
+            color: white;
+            padding: 20px;
+            border-bottom: 4px solid #008eb1;
+        }
+
+        #header h1 a {
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #nav-horizontal {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #nav-horizontal a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        #nav-horizontal a:hover {
+            background-color: #008eb1;
+        }
+
+        #user-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #user-tools a, .button-container a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #008eb1;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        #user-tools a:hover, .button-container a:hover {
+            background-color: #003c53;
+        }
+
+        #content {
+            padding: 40px;
+            text-align: center;
+        }
+
+        #content h1 {
+            color: #005a79;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(300px, 1fr)); /* 4 colunas para telas maiores */
+            gap: 50px; /* Espaçamento entre as caixas */
+            padding: 20px;
+            justify-items: center; /* Alinha as caixas ao centro da grid */
+        }
+        
+        .grid-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            width: 100%; /* A largura das caixas será controlada pela grid */
+            aspect-ratio: 1; /* Garante que a altura seja igual à largura */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden; /* Garante que o conteúdo não ultrapasse a caixa */
+        }
+        
+        .grid-item a {
+            color: #005a79;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .grid-item p {
+            margin: 10px 0;
+            color: #555;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 colunas em ecrãs médios */
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 colunas em ecrãs menores */
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr; /* 1 coluna em ecrãs muito pequenos */
+            }
+        }
+        
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #footer {
+            text-align: center;
+            background-color: #005a79;
+            color: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-top: 4px solid #008eb1;
+        }
+    </style>
+</head>
+<body class="dashboard">
+
+<header id="header">
+    <div id="branding">
+        <h1><a href="{% url 'livros:listar_livros' %}">Livraria Online</a></h1>
+    </div>
+    <div id="nav-horizontal">
+        <a href="{% url 'index' %}">Início</a>
+        <a href="{% url 'livros:listar_livros' %}">Lista de Livros</a>
+        <a href="{% url 'admin:index' %}">Painel Administrativo</a>
+    </div>
+    <div id="user-tools">
+        {% if user.is_authenticated %}
+            <span>Bem-vindo, <strong>{{ user.get_username }}</strong></span>
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Sair</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Entrar</a>
+        {% endif %}
+    </div>
+</header>
+
+<main id="content">
+    <h1>Relação de Existências de Livros - Painel Livros</h1>
+    <div class="grid">
+        {% for livro in livros %}
+            <div class="grid-item">
+                <a href="{% url 'livros:detalhes_livro' livro.id %}">{{ livro.titulo }}</a>
+                <p>Autor: {{ livro.autor }}</p>
+                <p>ISBN: {{ livro.isbn }}</p>
+                <p>Categoria: {{ livro.categoria }}</p>
+                <p>Publicado em: {{ livro.data_publicacao }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</main>
+
+<footer id="footer">
+    <p>&copy; 2025 Biblioteca. Todos os direitos reservados.</p>
+</footer>
+
+</body>
+</html>
