@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ livro.titulo }} - Detalhes</title>
+    <title>Registar Livro</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,7 +28,7 @@
         }
 
         main {
-            max-width: 800px;
+            max-width: 600px;
             margin: 40px auto;
             padding: 20px;
             background-color: #fff;
@@ -37,22 +37,40 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        main h2 {
-            color: #005a79;
-            font-size: 24px;
-            border-bottom: 2px solid #008eb1;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        form {
+            display: flex;
+            flex-direction: column;
         }
 
-        main p {
+        form label {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #005a79;
+        }
+
+        form input, form select, form textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 15px;
+            margin-top: 5px;
+            width: 100%; /* Faz os inputs ocuparem toda a largura disponível */
+            box-sizing: border-box; /* Garante que padding não afete a largura */
         }
 
-        main p strong {
-            color: #005a79;
+        button {
+            background-color: #005a79;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #003c53;
         }
 
         .button-container {
@@ -80,22 +98,22 @@
 <body>
 
 <header>
-    <h1>{{ livro.titulo }}</h1>
+    <h1>Registar Livro</h1>
 </header>
 
 <main>
-    <h2>Detalhes do Livro</h2>
-    <p><strong>Autor:</strong> {{ livro.autor }}</p>
-    <p><strong>ISBN:</strong> {{ livro.isbn }}</p>
-    <p><strong>Categoria:</strong> {{ livro.categoria }}</p>
-    <p><strong>Publicado em:</strong> {{ livro.data_publicacao }}</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Registar</button>
+    </form>
 
     <div class="button-container">
         <a href="{% url 'livros:listar_livros' %}">Voltar à Lista de Livros</a>
-        <a href="{% url 'livros:editar_livro' livro.id %}">Editar</a>
-        <a href="{% url 'livros:excluir_livro' livro.id %}" onclick="return confirm('Tem a certeza que deseja excluir este livro?');">Excluir</a>
     </div>
 </main>
 
 </body>
 </html>
+
+

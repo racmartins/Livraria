@@ -85,14 +85,17 @@
             margin-bottom: 20px;
         }
 
+        /* Ajustes na grid para garantir que os itens sejam mais largos e alinhados */
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(300px, 1fr)); /* 4 colunas para telas maiores */
-            gap: 50px; /* Espaçamento entre as caixas */
-            padding: 20px;
-            justify-items: center; /* Alinha as caixas ao centro da grid */
+            grid-template-columns: repeat(4, 1fr); /* 4 colunas por linha em telas grandes */
+            gap: 20px; /* Espaçamento entre as caixas */
+            padding: 30px;
+            justify-items: center; /* Garante que as caixas fiquem centralizadas */
+            max-width: 100%; /* Remove qualquer limitação de largura */
+            margin: 0 auto; /* Centraliza a grid na tela */
         }
-        
+
         .grid-item {
             background-color: #fff;
             border: 1px solid #ddd;
@@ -101,53 +104,56 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             text-align: center;
-            width: 100%; /* A largura das caixas será controlada pela grid */
-            aspect-ratio: 1; /* Garante que a altura seja igual à largura */
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden; /* Garante que o conteúdo não ultrapasse a caixa */
+            justify-content: space-between; /* Garante que o conteúdo se distribua uniformemente */
+            overflow: visible;
+            height: 350px; /* Altura fixa para todas as caixas */
+            width: 250px; /* Largura uniforme para todas as caixas */
+            margin: 0 auto;
         }
-        
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
         .grid-item a {
             color: #005a79;
             font-size: 18px;
             font-weight: bold;
             text-decoration: none;
+            margin-bottom: 10px; /* Distância do título das demais informações */
         }
-        
+
         .grid-item p {
-            margin: 10px 0;
+            margin: 5px 0;
             color: #555;
             font-size: 14px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal; /* Permite que o texto quebre em várias linhas */
+            word-wrap: break-word; /* Quebra as palavras longas em várias linhas */
+            text-align: left; /* Alinha o texto à esquerda */
         }
-        
-        .grid-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        
+
+        /* Ajustes para garantir que a grid seja responsiva */
         @media (max-width: 1200px) {
             .grid {
-                grid-template-columns: repeat(4, 1fr); /* 4 colunas em ecrãs médios */
+                grid-template-columns: repeat(3, 1fr); /* 3 colunas em ecrãs médios */
             }
         }
-        
+
         @media (max-width: 900px) {
             .grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 colunas em ecrãs menores */
+                grid-template-columns: repeat(2, 1fr); /* 2 colunas em ecrãs pequenos */
             }
         }
-        
+
         @media (max-width: 600px) {
             .grid {
                 grid-template-columns: 1fr; /* 1 coluna em ecrãs muito pequenos */
             }
         }
-        
+
         .button-container {
             margin-top: 20px;
             text-align: center;
@@ -200,6 +206,9 @@
             </div>
         {% endfor %}
     </div>
+    <div class="button-container">
+        <a href="{% url 'livros:registar_livro' %}">Adicionar Novo Livro</a>
+    </div>
 </main>
 
 <footer id="footer">
@@ -208,3 +217,4 @@
 
 </body>
 </html>
+
