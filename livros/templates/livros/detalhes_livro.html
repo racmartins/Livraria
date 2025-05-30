@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card mb-4">
+        <div class="row g-0">
+            <div class="col-md-4">
+                {% if livro.capa %}
+                <img src="{{ livro.capa.url }}?v={{ livro.data_atualizacao|date:'U' }}" class="card-img-top" alt="{{ livro.titulo }}">
+                {% else %}
+                    <div class="text-center p-3 bg-light">
+                        <i class="fas fa-book fa-4x text-secondary"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h2 class="card-title">{{ livro.titulo }}</h2>
+                        {% if pode_editar %}
+                        <div>
+                            <a href="{% url 'livros:editar_livro' livro.id %}" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Autores -->
+                    <div class="mt-3">
+                        <h5><i class="fas fa-users"></i> Autores</h5>
+                        <p class="card-text">
+                            {% if livro.autores.all %}
+                                {% for autor in livro.autores.all %}
+                                    <a href="{% url 'autores:detalhes_autor' autor.id %}" class="text-decoration-none">
+                                        {{ autor.nome }}
+                                    </a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Nenhum autor registado</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Editora -->
+                    <div class="mt-3">
+                        <h5><i class="fas fa-building"></i> Editora</h5>
+                        <p class="card-text">
+                            {% if livro.editora %}
+                                <a href="{% url 'editoras:detalhes_editora' livro.editora.id %}" class="text-decoration-none">
+                                    {{ livro.editora.nome }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Nenhuma editora registada</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Informações Adicionais -->
+                    <div class="mt-3">
+                        <h5><i class="fas fa-info-circle"></i> Informações</h5>
+                        <p class="card-text">
+                            {% if livro.isbn %}
+                                <strong>ISBN:</strong> {{ livro.isbn }}<br>
+                            {% endif %}
+                            {% if livro.categoria %}
+                                <strong>Categoria:</strong> {{ livro.categoria }}<br>
+                            {% endif %}
+                            {% if livro.data_publicacao %}
+                                <strong>Data de Publicação:</strong> {{ livro.data_publicacao|date:"d/m/Y" }}<br>
+                            {% endif %}
+                            <strong>Preço:</strong> {% if livro.preco %}€{{ livro.preco }}{% else %}Não definido{% endif %}
+                        </p>
+                    </div>
+
+                    {% if livro.descricao %}
+                    <div class="mt-3">
+                        <h5><i class="fas fa-align-left"></i> Descrição</h5>
+                        <p class="card-text">{{ livro.descricao|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{% url 'livros:listar_livros' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar à Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Livros Relacionados -->
+    {% if livros_relacionados %}
+    <h3 class="mb-4">Livros Relacionados</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for livro_rel in livros_relacionados %}
+        <div class="col">
+            <div class="card h-100">
+                {% if livro_rel.capa %}
+                    <img src="{{ livro_rel.capa.url }}" class="card-img-top" alt="{{ livro_rel.titulo }}">
+                {% else %}
+                    <div class="text-center p-3 bg-light">
+                        <i class="fas fa-book fa-3x text-secondary"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ livro_rel.titulo }}</h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            {% if livro_rel.autores.all %}
+                                {% for autor in livro_rel.autores.all %}
+                                    {{ autor.nome }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Autor desconhecido
+                            {% endif %}
+                        </small>
+                    </p>
+                    <p class="card-text">
+                        <strong>{% if livro_rel.preco %}€{{ livro_rel.preco }}{% else %}Preço não definido{% endif %}</strong>
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'livros:detalhes_livro' livro_rel.id %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-info-circle"></i> Detalhes
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+{% if pode_editar %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o livro <strong>{{ livro.titulo }}</strong>?</p>
+                <p class="text-danger">Esta ação não pode ser desfeita!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'livros:excluir_livro' livro.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-img-top {
+        object-fit: cover;
+        height: 300px;
+    }
+    
+    @media (max-width: 768px) {
+        .card-img-top {
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Livros</h2>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'livros:registar_livro' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Novo Livro
+        </a>
+    </div>
+</div>
+
+<!-- Card de pesquisa compacto -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="d-flex align-items-center gap-3">
+            <input type="text" name="search" class="form-control" 
+                   placeholder="Buscar por título..." 
+                   value="{{ request.GET.search }}"
+                   style="width: 250px;">
+            
+            <select name="autor" class="form-select" style="width: 200px;">
+                <option value="">Selecione um autor</option>
+                {% for autor in autores %}
+                    <option value="{{ autor.id }}" 
+                            {% if request.GET.autor|add:"0" == autor.id %}selected{% endif %}>
+                        {{ autor.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <select name="editora" class="form-select" style="width: 200px;">
+                <option value="">Selecione uma editora</option>
+                {% for editora in editoras %}
+                    <option value="{{ editora.id }}" 
+                            {% if request.GET.editora|add:"0" == editora.id %}selected{% endif %}>
+                        {{ editora.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Filtrar
+            </button>
+        </form>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for livro in livros %}
+    <div class="col">
+        <div class="card h-100">
+            {% if livro.capa %}
+                <img src="{{ livro.capa.url }}" class="card-img-top" alt="{{ livro.titulo }}">
+            {% else %}
+                <div class="text-center p-3 bg-light">
+                    <i class="fas fa-book fa-4x text-secondary"></i>
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ livro.titulo }}</h5>
+                <p class="card-text">
+                    <small class="text-muted">
+                        {% for autor in livro.autores.all %}
+                            {{ autor.nome }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </small>
+                </p>
+                <p class="card-text">
+                    <i class="fas fa-building"></i> {{ livro.editora.nome }}
+                </p>
+                <p class="card-text">
+                    <strong>€ {{ livro.preco }}</strong>
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'livros:detalhes_livro' livro.id %}" class="btn btn-info">
+                        <i class="fas fa-info-circle"></i> Detalhes
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small>Publicado em: {{ livro.data_publicacao|date:"d/m/Y" }}</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            Nenhum livro encontrado.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if livros.has_other_pages %}
+<nav aria-label="Navegação de páginas" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if livros.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ livros.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Anterior</a>
+        </li>
+        {% endif %}
+
+        {% for num in livros.paginator.page_range %}
+            {% if livros.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if livros.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ livros.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Próxima</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Livro: {{ livro.titulo }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f4f7fc, #e1ebf5);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: #005a79;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #008eb1;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #005a79;
+            font-size: 24px;
+            border-bottom: 2px solid #008eb1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form label {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #005a79;
+        }
+
+        form input, form select, form textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-top: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #005a79;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #003c53;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button-container a {
+            display: inline-block;
+            background-color: #005a79;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        .button-container a:hover {
+            background-color: #003c53;
+        }
+
+        /* Estilos para a área de imagem */
+        .image-preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .current-image, #preview-container {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .current-image img, #preview-container img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            margin: 10px 0;
+        }
+
+        .image-label {
+            font-weight: bold;
+            color: #005a79;
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Editar Livro: {{ livro.titulo }}</h1>
+</header>
+
+<main>
+    <h2>Atualize os detalhes do livro</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="error-message">
+                {% for error in field.errors %}
+                    <p style="color: red;">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Área de preview da imagem -->
+        <div class="image-preview">
+            {% if livro.capa %}
+            <div class="current-image">
+                <span class="image-label">Capa Atual:</span>
+                <img src="{{ livro.capa.url }}?v={{ livro.data_atualizacao|date:'U' }}" 
+                     alt="Capa atual do livro">
+            </div>
+            {% endif %}
+            <div id="preview-container"></div>
+        </div>
+
+        <button type="submit">Guardar Alterações</button>
+    </form>
+
+    <div class="button-container">
+        <a href="{% url 'livros:detalhes_livro' livro.id %}">Voltar aos detalhes do livro</a>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputCapa = document.querySelector('input[type="file"]');
+    if (inputCapa) {
+        inputCapa.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewContainer = document.getElementById('preview-container');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `
+                            <span class="image-label">Nova Capa:</span>
+                            <img src="${e.target.result}" alt="Preview da nova capa">
+                        `;
+                        previewContainer.style.display = 'block';
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>

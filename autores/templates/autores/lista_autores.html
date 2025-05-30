@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Autores</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{% url 'autores:adicionar_autor' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Novo Autor
+            </a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for autor in autores %}
+        <div class="col">
+            <div class="card h-100">
+                {% if autor.foto %}
+                    <img src="{{ autor.foto.url }}" class="card-img-top" alt="{{ autor.nome }}">
+                {% else %}
+                    <div class="text-center p-3 bg-light">
+                        <i class="fas fa-user fa-4x text-secondary"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ autor.nome }}</h5>
+                    {% if autor.data_nascimento %}
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> {{ autor.data_nascimento|date:"d/m/Y" }}
+                        </small>
+                    </p>
+                    {% endif %}
+                    <p class="card-text">{{ autor.biografia|truncatewords:30 }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'autores:detalhes_autor' autor.id %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-info-circle"></i> Detalhes
+                    </a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'autores:editar_autor' autor.id %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <form method="post" action="{% url 'autores:excluir_autor' autor.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem a certeza que deseja excluir este autor?')">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Nenhum autor registado.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+
+
